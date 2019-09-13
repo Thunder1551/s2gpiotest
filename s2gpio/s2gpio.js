@@ -59,6 +59,14 @@
                 digital_inputs[parseInt(pin)] = msg['level']
             }
             console.log(message.data)
+		
+	    //handle the reporter message for dht11 sensor value
+            if(reporter === ’send_dht_data’) {
+                var temperature = msg[’temp’];
+                var humidity = msg[’hum’];
+                return temperature;
+            }   
+            console.log(message.data)
         };
         window.socket.onclose = function (e) {
             console.log("Connection closed.");
@@ -205,6 +213,22 @@
         }
     };
 
+    // when the DHT11 sensor value read reporter block is executed
+    ext.dht11_read = function (pin) {
+        if (connected == false) {
+            alert("Server Not Connected");
+        }
+        console.log("DHT11 read");
+        //validate the pin number for the mode
+        if (validatePin(pin)){
+            var msg = JSON.stringify({
+                "command": 'dht11_read', 'pin': pin
+            });
+            console.log(msg);
+            window.socket.send(msg);
+        }
+    };	
+	
     // general function to validate the pin value
     function validatePin(pin) {
         var rValue = true;
@@ -233,7 +257,8 @@
 			[" ", "Set BCM %n as Servo with angle = %n (0° - 180°)", "servo", "PIN", "0"],     // ***Hackeduca --> Block for Servo 			
             [" ", "Tone: BCM %n HZ: %n", "play_tone", "PIN", 1000],
             ["r", "Read Digital Pin %n", "digital_read", "PIN"],
-	    ["r", "Read Analog Pin %n", "analog_read", "PIN"]
+	    ["r", "Read Analog Pin %n", "analog_read", "PIN"],
+	    ["r", "Read DHT11 sensor value %n", "dht11_read", "PIN"]
 
         ],
         "menus": {
